@@ -1,19 +1,21 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
 
-@Controller('users')
+@Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get()
+  async findAll(@Query('nome') name?: string): Promise<UserDto[]> {
+    return name
+      ? this.usersService.findByName(name)
+      : this.usersService.findAll();
+  }
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<UserDto> {
     return this.usersService.create(createUserDto);
-  }
-
-  @Get()
-  async findAll(): Promise<UserDto[]> {
-    return this.usersService.findAll();
   }
 }
