@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
+import { AnimeModule } from './anime/anime.module';
 
 @Module({
   imports: [
@@ -8,6 +9,7 @@ import { UserModule } from './user/user.module';
       'mongodb+srv://otavio:MyPassword@cluster0.gv39ixp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
     ),
     UserModule,
+    AnimeModule,
   ],
   controllers: [],
   providers: [],
