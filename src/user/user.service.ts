@@ -4,14 +4,22 @@ import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
 import { User, UserDocument } from './schemas/user.schema';
+import { LogLevel, logMessage } from 'src/utils/logMessage';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async findAll(): Promise<UserDto[]> {
-    const users = await this.userModel.find().select('id nome').exec();
-    return users.map((user) => user.toObject());
+    try {
+      const users = await this.userModel.find().select('id nome').exec();
+
+      logMessage('Usuarios encontrados com exito', LogLevel.INFO);
+
+      return users.map((user) => user.toObject());
+    } catch (err) {
+      logMessage(err.message, LogLevel.ERROR);
+    }
   }
 
   async findByName(nome: string): Promise<UserDto[]> {
