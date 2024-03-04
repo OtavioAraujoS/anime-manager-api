@@ -1,4 +1,4 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -29,7 +29,11 @@ export class UsersService {
         .select('id nome')
         .exec();
 
-      logMessage(`Usuario ${nome} encontrado com exito`, LogLevel.INFO);
+      if (users.length === 0) {
+        throw new Error(`Usuário com o nome ${nome} não encontrado`);
+      }
+
+      logMessage(`Usuário ${nome} encontrado com sucesso`, LogLevel.INFO);
 
       return users.map((user) => user.toObject());
     } catch (err) {
@@ -38,17 +42,24 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<UserDto> {
-    const { nome } = createUserDto;
+    try {
+      const { nome } = createUserDto;
 
-    // Verificar se já existe um usuário com o mesmo nome
-    const existingUser = await this.userModel.findOne({ nome }).exec();
-    if (existingUser) {
-      throw new ConflictException('Já existe um usuário com este nome.');
+      // Verificar se já existe um usuário com o mesmo nome
+      const existingUser = await this.userModel.findOne({ nome }).exec();
+      if (existingUser) {
+        throw new Error('Já existe um usuário com este nome.');
+      }
+
+      // Se não houver nenhum usuário com o mesmo nome, criar e salvar o novo usuário
+      const createdUser = new this.userModel(createUserDto);
+      const savedUser = await createdUser.save();
+
+      logMessage(`Usuario criado com exito`, LogLevel.INFO);
+
+      return savedUser.toObject();
+    } catch (err) {
+      logMessage(err.message, LogLevel.ERROR);
     }
-
-    // Se não houver nenhum usuário com o mesmo nome, criar e salvar o novo usuário
-    const createdUser = new this.userModel(createUserDto);
-    const savedUser = await createdUser.save();
-    return savedUser.toObject();
   }
 }
