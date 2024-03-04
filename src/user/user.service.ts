@@ -23,11 +23,18 @@ export class UsersService {
   }
 
   async findByName(nome: string): Promise<UserDto[]> {
-    const users = await this.userModel
-      .find({ nome: nome })
-      .select('id nome')
-      .exec();
-    return users.map((user) => user.toObject());
+    try {
+      const users = await this.userModel
+        .find({ nome: nome })
+        .select('id nome')
+        .exec();
+
+      logMessage(`Usuario ${nome} encontrado com exito`, LogLevel.INFO);
+
+      return users.map((user) => user.toObject());
+    } catch (err) {
+      logMessage(err.message, LogLevel.ERROR);
+    }
   }
 
   async create(createUserDto: CreateUserDto): Promise<UserDto> {
