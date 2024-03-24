@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 @Schema()
 export class Anime {
   @Prop({ required: true })
-  userId: number;
+  userId: string;
 
   @Prop({ required: true })
   title: string;
