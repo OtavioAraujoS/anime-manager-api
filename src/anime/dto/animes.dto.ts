@@ -1,5 +1,5 @@
 export class AnimeDto {
-  userId: number;
+  userId: string;
   title: string;
   photo: string;
   episodesWatched: number;
