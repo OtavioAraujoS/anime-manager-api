@@ -31,6 +31,32 @@ export class AnimeService {
     }
   }
 
+  async findById(id: string): Promise<Anime | ConflictResponse> {
+    try {
+      const anime = await this.animeModel.findById(id).exec();
+
+      if (!anime) {
+        const notFoundResponse: ConflictResponse = {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Anime não encontrado',
+        };
+        return notFoundResponse;
+      }
+
+      logMessage('Anime encontrado com sucesso!', LogLevel.INFO);
+      return anime;
+    } catch (err) {
+      logMessage(err.message, LogLevel.ERROR);
+
+      const response: ConflictResponse = {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: err.message,
+      };
+
+      return response;
+    }
+  }
+
   async create(createAnimeDto: CreateAnimeDto): Promise<AnimeDto> {
     const requiredFields = [
       'userId',
