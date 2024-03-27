@@ -14,7 +14,7 @@ export class UsersService {
     try {
       const users = await this.userModel.find().select('id nome').exec();
 
-      logMessage('Usuarios encontrados com exito', LogLevel.INFO);
+      logMessage('Usuários encontrados com exito', LogLevel.INFO);
 
       return users.map((user) => user.toObject());
     } catch (err) {
