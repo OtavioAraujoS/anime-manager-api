@@ -4,6 +4,8 @@ import { Anime, AnimeDocument } from './schemas/anime.schema';
 import { Model } from 'mongoose';
 import { CreateAnimeDto } from './dto/create-anime.dto';
 import { AnimeDto } from './dto/animes.dto';
+import { LogLevel, logMessage } from 'src/utils/logMessage';
+import { ConflictResponse } from 'src/interfaces/response';
 
 @Injectable()
 export class AnimeService {
@@ -11,9 +13,22 @@ export class AnimeService {
     @InjectModel(Anime.name) private animeModel: Model<AnimeDocument>
   ) {}
 
-  async findAll(): Promise<Anime[]> {
-    const animes = await this.animeModel.find().exec();
-    return animes;
+  async findAll(): Promise<Anime[] | ConflictResponse> {
+    try {
+      const animes = await this.animeModel.find().exec();
+
+      logMessage('Animes encontrados com sucesso!', LogLevel.INFO);
+      return animes;
+    } catch (err) {
+      logMessage(err.message, LogLevel.ERROR);
+
+      const response: ConflictResponse = {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: err.message,
+      };
+
+      return response;
+    }
   }
 
   async create(createAnimeDto: CreateAnimeDto): Promise<AnimeDto> {
