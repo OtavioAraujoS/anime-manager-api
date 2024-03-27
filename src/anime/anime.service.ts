@@ -96,4 +96,36 @@ export class AnimeService {
       return response;
     }
   }
+
+  async update(
+    id: string,
+    updateAnimeDto: CreateAnimeDto
+  ): Promise<AnimeDto | ConflictResponse> {
+    try {
+      const updatedAnime = await this.animeModel
+        .findByIdAndUpdate(id, updateAnimeDto, { new: true })
+        .exec();
+
+      if (!updatedAnime) {
+        const response: ConflictResponse = {
+          statusCode: HttpStatus.CONFLICT,
+          message: 'Anime não encontrado.',
+        };
+
+        return response;
+      }
+
+      logMessage('Anime atualizado com sucesso!', LogLevel.INFO);
+      return updatedAnime;
+    } catch (err) {
+      logMessage(err.message, LogLevel.ERROR);
+
+      const response: ConflictResponse = {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: err.message,
+      };
+
+      return response;
+    }
+  }
 }
