@@ -21,7 +21,9 @@ export class AnimeController {
   }
 
   @Post()
-  async create(@Body() createAnimeDto: CreateAnimeDto): Promise<AnimeDto> {
+  async create(
+    @Body() createAnimeDto: CreateAnimeDto
+  ): Promise<AnimeDto | ConflictResponse> {
     return this.animeService.create(createAnimeDto);
   }
 }
