@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
 import { AnimeDto } from './dto/animes.dto';
 import { CreateAnimeDto } from './dto/create-anime.dto';
 import { AnimeService } from './anime.service';
@@ -25,5 +25,15 @@ export class AnimeController {
     @Body() createAnimeDto: CreateAnimeDto
   ): Promise<AnimeDto | ConflictResponse> {
     return this.animeService.create(createAnimeDto);
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateAnimeDto: CreateAnimeDto
+  ): Promise<AnimeDto | ConflictResponse> {
+    const updatedAnime = await this.animeService.update(id, updateAnimeDto);
+
+    return updatedAnime;
   }
 }
