@@ -128,4 +128,31 @@ export class AnimeService {
       return response;
     }
   }
+
+  async delete(id: string): Promise<AnimeDto | ConflictResponse> {
+    try {
+      const deletedAnime = await this.animeModel.findByIdAndDelete(id).exec();
+
+      if (!deletedAnime) {
+        const response: ConflictResponse = {
+          statusCode: HttpStatus.CONFLICT,
+          message: 'Anime não encontrado.',
+        };
+
+        return response;
+      }
+
+      logMessage('Anime apagado com sucesso!', LogLevel.INFO);
+      return deletedAnime;
+    } catch (err) {
+      logMessage(err.message, LogLevel.ERROR);
+
+      const response: ConflictResponse = {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: err.message,
+      };
+
+      return response;
+    }
+  }
 }
