@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+} from '@nestjs/common';
 import { AnimeDto } from './dto/animes.dto';
 import { CreateAnimeDto } from './dto/create-anime.dto';
 import { AnimeService } from './anime.service';
@@ -35,5 +43,12 @@ export class AnimeController {
     const updatedAnime = await this.animeService.update(id, updateAnimeDto);
 
     return updatedAnime;
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: string): Promise<AnimeDto | ConflictResponse> {
+    const deletedAnime = await this.animeService.delete(id);
+
+    return deletedAnime;
   }
 }
