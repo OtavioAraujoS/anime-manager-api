@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
 import { User, UserDocument } from './schemas/user.schema';
 import { LogLevel, logMessage } from 'src/utils/logMessage';
+import { ConflictResponse } from 'src/interfaces/response';
 
 @Injectable()
 export class UsersService {
@@ -22,7 +23,7 @@ export class UsersService {
     }
   }
 
-  async findByName(nome: string): Promise<UserDto[]> {
+  async findByName(nome: string): Promise<UserDto[] | ConflictResponse> {
     try {
       const users = await this.userModel
         .find({ nome: nome })
@@ -30,7 +31,12 @@ export class UsersService {
         .exec();
 
       if (users.length === 0) {
-        throw new Error(`Usuário com o nome ${nome} não encontrado`);
+        const response: ConflictResponse = {
+          statusCode: HttpStatus.CONFLICT,
+          message: 'Usuário nao encontrado.',
+        };
+
+        return response;
       }
 
       logMessage(`Usuário ${nome} encontrado com sucesso`, LogLevel.INFO);
@@ -38,6 +44,13 @@ export class UsersService {
       return users.map((user) => user.toObject());
     } catch (err) {
       logMessage(err.message, LogLevel.ERROR);
+
+      const response: ConflictResponse = {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: err.message,
+      };
+
+      return response;
     }
   }
 
