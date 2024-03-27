@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { AnimeDto } from './dto/animes.dto';
 import { CreateAnimeDto } from './dto/create-anime.dto';
 import { AnimeService } from './anime.service';
@@ -11,6 +11,13 @@ export class AnimeController {
   @Get()
   async findAll(): Promise<AnimeDto[] | ConflictResponse> {
     return this.animeService.findAll();
+  }
+
+  @Get(':id')
+  async findById(
+    @Param('id') id: string
+  ): Promise<AnimeDto | ConflictResponse> {
+    return this.animeService.findById(id);
   }
 
   @Post()
