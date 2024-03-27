@@ -54,25 +54,39 @@ export class UsersService {
     }
   }
 
-  async create(createUserDto: CreateUserDto): Promise<UserDto> {
+  async create(
+    createUserDto: CreateUserDto
+  ): Promise<UserDto | ConflictResponse> {
     try {
       const { nome } = createUserDto;
 
       // Verificar se já existe um usuário com o mesmo nome
       const existingUser = await this.userModel.findOne({ nome }).exec();
       if (existingUser) {
-        throw new Error('Já existe um usuário com este nome.');
+        const response: ConflictResponse = {
+          statusCode: HttpStatus.CONFLICT,
+          message: 'Já existe um usuário com este nome.',
+        };
+
+        return response;
       }
 
       // Se não houver nenhum usuário com o mesmo nome, criar e salvar o novo usuário
       const createdUser = new this.userModel(createUserDto);
       const savedUser = await createdUser.save();
 
-      logMessage(`Usuario criado com exito`, LogLevel.INFO);
+      logMessage(`Usuário criado com sucesso`, LogLevel.INFO);
 
       return savedUser.toObject();
     } catch (err) {
       logMessage(err.message, LogLevel.ERROR);
+
+      const response: ConflictResponse = {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: err.message,
+      };
+
+      return response;
     }
   }
 }
