@@ -6,7 +6,7 @@ import { AnimeModule } from './anime/anime.module';
 @Module({
   imports: [
     MongooseModule.forRoot(
-      'mongodb+srv://otavio:MyPassword@cluster0.gv39ixp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+      'mongodb+srv://otavio:12345@cluster0.gv39ixp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
     ),
     UserModule,
     AnimeModule,
