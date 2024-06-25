@@ -6,6 +6,8 @@ import {
   Param,
   Put,
   Delete,
+  Query,
+  HttpStatus,
 } from '@nestjs/common';
 import { AnimeDto } from './dto/animes.dto';
 import { CreateAnimeDto } from './dto/create-anime.dto';
@@ -17,8 +19,19 @@ export class AnimeController {
   constructor(private readonly animeService: AnimeService) {}
 
   @Get()
-  async findAll(): Promise<AnimeDto[] | ConflictResponse> {
-    return this.animeService.findAll();
+  async findAll(
+    @Query('userId') userId?: string
+  ): Promise<AnimeDto[] | ConflictResponse> {
+    try {
+      const animes = await this.animeService.findAll(userId);
+
+      return animes.map((anime) => anime as AnimeDto);
+    } catch (err) {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: err.message,
+      };
+    }
   }
 
   @Get(':id')
