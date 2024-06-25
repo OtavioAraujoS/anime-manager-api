@@ -13,21 +13,23 @@ export class AnimeService {
     @InjectModel(Anime.name) private animeModel: Model<AnimeDocument>
   ) {}
 
-  async findAll(): Promise<Anime[] | ConflictResponse> {
+  async findAll(userId?: string): Promise<Anime[]> {
     try {
-      const animes = await this.animeModel.find().exec();
+      let query = this.animeModel.find();
 
-      logMessage('Animes encontrados com sucesso!', LogLevel.INFO);
+      if (userId) {
+        query = query.where('userId').equals(userId);
+      }
+
+      const animes = await query.exec();
+
+      logMessage(
+        'FindAll - Anime: Animes encontrados com sucesso!',
+        LogLevel.INFO
+      );
       return animes;
     } catch (err) {
       logMessage(err.message, LogLevel.ERROR);
-
-      const response: ConflictResponse = {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: err.message,
-      };
-
-      return response;
     }
   }
 
