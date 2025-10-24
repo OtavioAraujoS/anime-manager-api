@@ -17,7 +17,7 @@ export class UsersService {
 
       logMessage('Usuários encontrados com exito', LogLevel.INFO);
 
-      return users.map((user) => user.toObject());
+      return users.map((user) => ({ id: user.id, nome: user.nome }));
     } catch (err) {
       logMessage(err.message, LogLevel.ERROR);
     }
@@ -41,7 +41,7 @@ export class UsersService {
 
       logMessage(`Usuário ${nome} encontrado com sucesso`, LogLevel.INFO);
 
-      return users.map((user) => user.toObject());
+      return users.map((user) => ({ id: user.id, nome: user.nome }));
     } catch (err) {
       logMessage(err.message, LogLevel.ERROR);
 
@@ -60,7 +60,6 @@ export class UsersService {
     try {
       const { nome } = createUserDto;
 
-      // Verificar se já existe um usuário com o mesmo nome
       const existingUser = await this.userModel.findOne({ nome }).exec();
       if (existingUser) {
         const response: ConflictResponse = {
@@ -71,13 +70,12 @@ export class UsersService {
         return response;
       }
 
-      // Se não houver nenhum usuário com o mesmo nome, criar e salvar o novo usuário
       const createdUser = new this.userModel(createUserDto);
       const savedUser = await createdUser.save();
 
       logMessage(`Usuário criado com sucesso`, LogLevel.INFO);
 
-      return savedUser.toObject();
+      return { id: savedUser.id, nome: savedUser.nome };
     } catch (err) {
       logMessage(err.message, LogLevel.ERROR);
 
