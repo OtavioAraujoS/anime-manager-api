@@ -5,9 +5,17 @@ import { AnimeModule } from './anime/anime.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASSWORD}@cluster0.gv39ixp.mongodb.net/`
-    ),
+    MongooseModule.forRootAsync({
+      useFactory: async () => ({
+        uri: `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASSWORD}@cluster0.gv39ixp.mongodb.net/meubanco?retryWrites=true&w=majority`,
+        connectionFactory: (connection) => {
+          connection.on('error', (err) =>
+            console.error('Mongoose connection error:', err)
+          );
+          return connection;
+        },
+      }),
+    }),
     UserModule,
     AnimeModule,
   ],
