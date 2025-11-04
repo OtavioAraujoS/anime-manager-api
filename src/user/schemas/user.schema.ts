@@ -8,6 +8,9 @@ export class User {
 
   @Prop({ default: Date.now })
   createdAt: Date;
+
+  @Prop({ required: true })
+  password: string;
 }
 
 export type UserDocument = User & Document;
