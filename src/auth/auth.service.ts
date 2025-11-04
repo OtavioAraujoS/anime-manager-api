@@ -16,30 +16,53 @@ export class AuthService {
 
   async validateUser(
     username: string,
-    pass: string
+    password: string
   ): Promise<UserDto | ConflictResponse> {
     try {
-      if (!username || !pass) {
-        const response: ConflictResponse = {
+      if (!username || !password) {
+        return {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Usuário inválido.',
+          message: 'Usuário e senha são obrigatórios.',
         };
-        return response;
       }
-      const user = await this.usersService.findByName(username);
-      if (user && (await bcrypt.compare(pass, user?.[0]?.password || ''))) {
-        const { ...result } = user[0];
-        return result;
+
+      const result = await this.usersService.findByName(username);
+
+      if ('statusCode' in result) {
+        return {
+          statusCode: HttpStatus.CONFLICT,
+          message: 'Usuário não encontrado.',
+        };
       }
-      throw new UnauthorizedException('Usuário ou senha inválidos');
+
+      const user = result[0];
+
+      if (!user) {
+        return {
+          statusCode: HttpStatus.CONFLICT,
+          message: 'Usuário não encontrado.',
+        };
+      }
+
+      const passwordMatches = await bcrypt.compare(password, user?.password);
+      if (!passwordMatches) {
+        return {
+          statusCode: HttpStatus.UNAUTHORIZED,
+          message: 'Senha incorreta.',
+        };
+      }
+
+      const { id, name } = user;
+      logMessage(`Usuário ${name} autenticado com sucesso.`, LogLevel.INFO);
+
+      return { id, name, password: user.password };
     } catch (error) {
       logMessage(error.message, LogLevel.ERROR);
-      const response: ConflictResponse = {
+
+      return {
         statusCode: HttpStatus.BAD_REQUEST,
         message: error.message,
       };
-
-      return response;
     }
   }
 
