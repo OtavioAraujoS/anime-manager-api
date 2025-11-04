@@ -10,7 +10,7 @@ export class UsersController {
 
   @Get()
   async findAll(
-    @Query('nome') name?: string
+    @Query('name') name?: string
   ): Promise<UserDto[] | ConflictResponse> {
     return name
       ? this.usersService.findByName(name)
