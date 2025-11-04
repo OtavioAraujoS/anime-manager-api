@@ -15,9 +15,7 @@ export class AuthController {
   @Post('login')
   async login(@Body() body: { name: string; password: string }) {
     const user = await this.authService.validateUser(body.name, body.password);
-    if (user && 'statusCode' in user) {
-      return 'Usuário ou senha inválidos';
-    }
+
     return this.authService.login(user as UserDto);
   }
 
