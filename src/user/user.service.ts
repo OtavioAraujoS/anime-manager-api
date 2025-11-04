@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
+import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from './schemas/user.schema';
 import { LogLevel, logMessage } from 'src/utils/logMessage';
 import { ConflictResponse } from 'src/interfaces/response';
@@ -17,17 +18,17 @@ export class UsersService {
 
       logMessage('Usuários encontrados com exito', LogLevel.INFO);
 
-      return users.map((user) => ({ id: user.id, nome: user.nome }));
+      return users.map((user) => ({ id: user.id, name: user.name }));
     } catch (err) {
       logMessage(err.message, LogLevel.ERROR);
     }
   }
 
-  async findByName(nome: string): Promise<UserDto[] | ConflictResponse> {
+  async findByName(name: string): Promise<UserDto[] | ConflictResponse> {
     try {
       const users = await this.userModel
-        .find({ nome: nome })
-        .select('id nome')
+        .find({ name: name })
+        .select('id name')
         .exec();
 
       if (users.length === 0) {
@@ -39,9 +40,9 @@ export class UsersService {
         return response;
       }
 
-      logMessage(`Usuário ${nome} encontrado com sucesso`, LogLevel.INFO);
+      logMessage(`Usuário ${name} encontrado com sucesso`, LogLevel.INFO);
 
-      return users.map((user) => ({ id: user.id, nome: user.nome }));
+      return users.map((user) => ({ id: user.id, name: user.name }));
     } catch (err) {
       logMessage(err.message, LogLevel.ERROR);
 
@@ -58,24 +59,38 @@ export class UsersService {
     createUserDto: CreateUserDto
   ): Promise<UserDto | ConflictResponse> {
     try {
-      const { nome } = createUserDto;
+      const { name, password } = createUserDto;
 
-      const existingUser = await this.userModel.findOne({ nome }).exec();
+      const passwordNotIsDefined = !password || password.trim() === '';
+      if (passwordNotIsDefined) {
+        const response: ConflictResponse = {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'A senha é obrigatória.',
+        };
+        return response;
+      }
+
+      const existingUser = await this.userModel.findOne({ name }).exec();
       if (existingUser) {
         const response: ConflictResponse = {
           statusCode: HttpStatus.CONFLICT,
           message: 'Já existe um usuário com este nome.',
         };
-
         return response;
       }
 
-      const createdUser = new this.userModel(createUserDto);
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const createdUser = new this.userModel({
+        ...createUserDto,
+        password: hashedPassword,
+      });
+
       const savedUser = await createdUser.save();
 
-      logMessage(`Usuário criado com sucesso`, LogLevel.INFO);
+      logMessage(`Usuário "${name}" criado com sucesso`, LogLevel.INFO);
 
-      return { id: savedUser.id, nome: savedUser.nome };
+      return { id: savedUser.id, name: savedUser.name };
     } catch (err) {
       logMessage(err.message, LogLevel.ERROR);
 
