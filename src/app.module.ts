@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
 import { AnimeModule } from './anime/anime.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AnimeModule } from './anime/anime.module';
     }),
     UserModule,
     AnimeModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
