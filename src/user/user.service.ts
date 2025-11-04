@@ -28,7 +28,7 @@ export class UsersService {
     try {
       const users = await this.userModel
         .find({ name: name })
-        .select('id name')
+        .select('id name password')
         .exec();
 
       if (users.length === 0) {
@@ -42,7 +42,11 @@ export class UsersService {
 
       logMessage(`Usuário ${name} encontrado com sucesso`, LogLevel.INFO);
 
-      return users.map((user) => ({ id: user.id, name: user.name }));
+      return users.map((user) => ({
+        id: user.id,
+        name: user.name,
+        password: user.password,
+      }));
     } catch (err) {
       logMessage(err.message, LogLevel.ERROR);
 
