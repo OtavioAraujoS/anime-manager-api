@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
 import { ConflictResponse } from 'src/interfaces/response';
+import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
 @Controller('user')
 export class UsersController {
@@ -17,6 +18,7 @@ export class UsersController {
       : this.usersService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(
     @Body() createUserDto: CreateUserDto
