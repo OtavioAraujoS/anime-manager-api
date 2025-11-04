@@ -63,6 +63,7 @@ export class UsersService {
 
       const passwordNotIsDefined = !password || password.trim() === '';
       if (passwordNotIsDefined) {
+        logMessage(`A senha é obrigatória.`, LogLevel.ERROR);
         const response: ConflictResponse = {
           statusCode: HttpStatus.BAD_REQUEST,
           message: 'A senha é obrigatória.',
@@ -72,6 +73,7 @@ export class UsersService {
 
       const existingUser = await this.userModel.findOne({ name }).exec();
       if (existingUser) {
+        logMessage(`Já existe um usuário com o nome ${name}.`, LogLevel.ERROR);
         const response: ConflictResponse = {
           statusCode: HttpStatus.CONFLICT,
           message: 'Já existe um usuário com este nome.',
