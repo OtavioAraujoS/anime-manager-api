@@ -8,12 +8,15 @@ import {
   Delete,
   Query,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { AnimeDto } from './dto/animes.dto';
 import { CreateAnimeDto } from './dto/create-anime.dto';
 import { AnimeService } from './anime.service';
 import { ConflictResponse } from 'src/interfaces/response';
+import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('anime')
 export class AnimeController {
   constructor(private readonly animeService: AnimeService) {}
