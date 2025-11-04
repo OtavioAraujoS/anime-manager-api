@@ -1,6 +1,7 @@
 import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt.guard';
+import { UserDto } from 'src/user/dto/user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -12,12 +13,12 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() body: { username: string; password: string }) {
-    const user = await this.authService.validateUser(
-      body.username,
-      body.password
-    );
-    return this.authService.login(user);
+  async login(@Body() body: { name: string; password: string }) {
+    const user = await this.authService.validateUser(body.name, body.password);
+    if (user && 'statusCode' in user) {
+      return 'Usuário ou senha inválidos';
+    }
+    return this.authService.login(user as UserDto);
   }
 
   @UseGuards(JwtAuthGuard)
