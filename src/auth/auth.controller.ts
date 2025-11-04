@@ -16,6 +16,10 @@ export class AuthController {
   async login(@Body() body: { name: string; password: string }) {
     const user = await this.authService.validateUser(body.name, body.password);
 
+    if ('statusCode' in user) {
+      return user;
+    }
+
     return this.authService.login(user as UserDto);
   }
 
