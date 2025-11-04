@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 @Schema()
 export class User {
   @Prop({ required: true })
-  nome: string;
+  name: string;
 
   @Prop({ default: Date.now })
   createdAt: Date;
